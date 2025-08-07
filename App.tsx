@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Home from './components/Home';
 import NomenclatureConverter from './components/NomenclatureConverter';
 import CaseConverter from './components/CaseConverter';
@@ -17,6 +17,9 @@ import ColorPicker from './components/ColorPicker';
 import VisualWebAnalyzer from './components/VisualWebAnalyzer';
 import ImageReader from './components/ImageReader';
 import ImageUpscaler from './components/ImageUpscaler';
+import Stopwatch from './components/Stopwatch';
+import AlarmClock from './components/AlarmClock';
+import WorldClocks from './components/WorldClocks';
 import Footer from './components/Footer';
 
 
@@ -39,35 +42,66 @@ const IconHome: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 
-export type ToolId = 'nomenclature' | 'case' | 'counter' | 'accents' | 'number-to-words' | 'spell-checker' | 'cool-letters' | 'text-to-html' | 'roman-numerals' | 'text-cutter' | 'random-number' | 'binary-translator' | 'lorem-ipsum' | 'color-picker' | 'visual-analyzer' | 'image-reader' | 'image-upscaler';
+export type ToolId = 'nomenclature' | 'case' | 'counter' | 'accents' | 'number-to-words' | 'spell-checker' | 'cool-letters' | 'text-to-html' | 'roman-numerals' | 'text-cutter' | 'random-number' | 'binary-translator' | 'lorem-ipsum' | 'color-picker' | 'visual-analyzer' | 'image-reader' | 'image-upscaler' | 'stopwatch' | 'alarm-clock' | 'world-clocks';
+
+export interface ToolComponentProps {
+    onGoBack: () => void;
+}
+
+export type ViewMode = 'category' | 'name';
 
 export interface Tool {
     id: ToolId;
     name: string;
     description: string;
-    component: JSX.Element;
+    component: React.ComponentType<ToolComponentProps>;
+    category: string;
     implemented: boolean;
 }
 
 const tools: Tool[] = [
-  { id: 'nomenclature', name: 'Conversor de Nomenclatura', description: 'Converta listas de texto em `snake_case`, `camelCase`, etc.', component: <NomenclatureConverter />, implemented: true },
-  { id: 'case', name: 'Conversor Maiúsculas/Minúsculas', description: 'Altere rapidamente o texto entre MAIÚSCULAS, minúsculas e Capitalizado.', component: <CaseConverter />, implemented: true },
-  { id: 'counter', name: 'Contador de Caracteres', description: 'Conte caracteres, palavras e linhas do seu texto em tempo real.', component: <Counter />, implemented: true },
-  { id: 'accents', name: 'Remover Acentos', description: 'Limpe seu texto removendo todos os acentos e caracteres diacríticos.', component: <AccentRemover />, implemented: true },
-  { id: 'number-to-words', name: 'Número por Extenso', description: 'Transforme números em sua representação por extenso em português.', component: <NumberToWordsConverter />, implemented: true },
-  { id: 'spell-checker', name: 'Corretor Ortográfico (IA)', description: 'Utilize IA para corrigir erros ortográficos e gramaticais no seu texto.', component: <SpellChecker />, implemented: true },
-  { id: 'visual-analyzer', name: 'Analisador Visual (IA)', description: 'Envie um print de um site e receba uma análise de UI/UX feita por IA.', component: <VisualWebAnalyzer />, implemented: true },
-  { id: 'image-reader', name: 'Leitor de Imagens (IA)', description: 'Peça para a IA descrever em detalhes o conteúdo de qualquer imagem.', component: <ImageReader />, implemented: true },
-  { id: 'image-upscaler', name: 'Ampliador de Imagem (IA)', description: '(Demo) Aumente a resolução de suas imagens com o poder da IA.', component: <ImageUpscaler />, implemented: true },
-  { id: 'cool-letters', name: 'Letras Diferentes', description: 'Crie textos com fontes e estilos especiais para redes sociais.', component: <CoolLettersConverter />, implemented: true },
-  { id: 'text-to-html', name: 'Texto para HTML', description: 'Converta texto simples em HTML com parágrafos e quebras de linha.', component: <TextToHtmlConverter />, implemented: true },
-  { id: 'roman-numerals', name: 'Conversor de Números Romanos', description: 'Converta números arábicos para romanos e vice-versa.', component: <RomanNumeralConverter />, implemented: true },
-  { id: 'text-cutter', name: 'Cortar Textos', description: 'Divida textos longos em pedaços menores de um tamanho definido.', component: <TextCutter />, implemented: true },
-  { id: 'random-number', name: 'Sorteador de Números', description: 'Sorteie números aleatórios com configurações de intervalo e quantidade.', component: <RandomNumberGenerator />, implemented: true },
-  { id: 'binary-translator', name: 'Tradutor de Código Binário', description: 'Traduza texto para código binário ou decodifique binário para texto.', component: <BinaryTranslator />, implemented: true },
-  { id: 'lorem-ipsum', name: 'Gerador de Lorem Ipsum', description: 'Gere texto de preenchimento para seus layouts.', component: <LoremIpsumGenerator />, implemented: true },
-  { id: 'color-picker', name: 'Color Picker', description: 'Selecione cores e copie seus códigos em HEX, RGB e HSL.', component: <ColorPicker />, implemented: true },
+  // Ferramentas de Texto
+  { id: 'nomenclature', name: 'Conversor de Nomenclatura', description: 'Converta listas de texto em `snake_case`, `camelCase`, etc.', component: NomenclatureConverter, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'case', name: 'Conversor Maiúsculas/Minúsculas', description: 'Altere rapidamente o texto entre MAIÚSCULAS, minúsculas e Capitalizado.', component: CaseConverter, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'counter', name: 'Contador de Caracteres', description: 'Conte caracteres, palavras e linhas do seu texto em tempo real.', component: Counter, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'accents', name: 'Remover Acentos', description: 'Limpe seu texto removendo todos os acentos e caracteres diacríticos.', component: AccentRemover, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'spell-checker', name: 'Corretor Ortográfico (IA)', description: 'Utilize IA para corrigir erros ortográficos e gramaticais no seu texto.', component: SpellChecker, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'cool-letters', name: 'Letras Diferentes', description: 'Crie textos com fontes e estilos especiais para redes sociais.', component: CoolLettersConverter, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'text-to-html', name: 'Texto para HTML', description: 'Converta texto simples em HTML com parágrafos e quebras de linha.', component: TextToHtmlConverter, category: 'Ferramentas de Texto', implemented: true },
+  { id: 'text-cutter', name: 'Cortar Textos', description: 'Divida textos longos em pedaços menores de um tamanho definido.', component: TextCutter, category: 'Ferramentas de Texto', implemented: true },
+
+  // Análise com IA
+  { id: 'visual-analyzer', name: 'Analisador Visual (IA)', description: 'Envie um print de um site e receba uma análise de UI/UX feita por IA.', component: VisualWebAnalyzer, category: 'Análise com IA', implemented: true },
+  { id: 'image-reader', name: 'Leitor de Imagens (IA)', description: 'Peça para a IA descrever em detalhes o conteúdo de qualquer imagem.', component: ImageReader, category: 'Análise com IA', implemented: true },
+  { id: 'image-upscaler', name: 'Ampliador de Imagem (IA)', description: '(Demo) Aumente a resolução de suas imagens com o poder da IA.', component: ImageUpscaler, category: 'Análise com IA', implemented: true },
+
+  // Conversores
+  { id: 'number-to-words', name: 'Número por Extenso', description: 'Transforme números em sua representação por extenso em português.', component: NumberToWordsConverter, category: 'Conversores', implemented: true },
+  { id: 'roman-numerals', name: 'Conversor de Números Romanos', description: 'Converta números arábicos para romanos e vice-versa.', component: RomanNumeralConverter, category: 'Conversores', implemented: true },
+  { id: 'binary-translator', name: 'Tradutor de Código Binário', description: 'Traduza texto para código binário ou decodifique binário para texto.', component: BinaryTranslator, category: 'Conversores', implemented: true },
+
+  // Geradores
+  { id: 'random-number', name: 'Sorteador de Números', description: 'Sorteie números aleatórios com configurações de intervalo e quantidade.', component: RandomNumberGenerator, category: 'Geradores', implemented: true },
+  { id: 'lorem-ipsum', name: 'Gerador de Lorem Ipsum', description: 'Gere texto de preenchimento para seus layouts.', component: LoremIpsumGenerator, category: 'Geradores', implemented: true },
+  
+  // Design
+  { id: 'color-picker', name: 'Color Picker', description: 'Selecione cores e copie seus códigos em HEX, RGB e HSL.', component: ColorPicker, category: 'Design', implemented: true },
+
+  // Utilidades de Tempo
+  { id: 'stopwatch', name: 'Cronômetro', description: 'Meça o tempo com precisão, com voltas e parciais.', component: Stopwatch, category: 'Utilidades de Tempo', implemented: true },
+  { id: 'alarm-clock', name: 'Despertador', description: 'Configure alarmes para seus compromissos importantes.', component: AlarmClock, category: 'Utilidades de Tempo', implemented: true },
+  { id: 'world-clocks', name: 'Relógios do Mundo', description: 'Veja a hora atual em diferentes cidades ao redor do mundo.', component: WorldClocks, category: 'Utilidades de Tempo', implemented: true },
 ];
+
+const groupedToolsForSidebar = tools.reduce((acc, tool) => {
+    const category = tool.category || 'Outras';
+    if (!acc[category]) {
+        acc[category] = [];
+    }
+    acc[category].push(tool);
+    return acc;
+}, {} as Record<string, Tool[]>);
+
 
 const App: React.FC = () => {
     const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -78,6 +112,7 @@ const App: React.FC = () => {
 
     const [activeTool, setActiveTool] = useState<ToolId | 'home'>('home');
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+    const [viewMode, setViewMode] = useState<ViewMode>('category');
 
     useEffect(() => {
         if (theme === 'dark') {
@@ -101,6 +136,7 @@ const App: React.FC = () => {
     };
     
     const currentTool = tools.find(t => t.id === activeTool);
+    const CurrentToolComponent = currentTool?.component;
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 font-sans transition-colors duration-300 flex flex-col">
@@ -108,7 +144,9 @@ const App: React.FC = () => {
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
                 {/* Mobile Header */}
                 <div className="md:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
-                    <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-400 dark:to-purple-500">ToolBox.IA</h1>
+                    <button onClick={() => handleSelectTool('home')} className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 focus:ring-blue-500 rounded-md" aria-label="Voltar ao início">
+                        <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-400 dark:to-purple-500">ToolBox.IA</h1>
+                    </button>
                     <div className="flex items-center gap-2">
                          <button onClick={toggleTheme} className="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
                              {theme === 'light' ? <IconMoon className="h-6 w-6"/> : <IconSun className="h-6 w-6"/>}
@@ -125,7 +163,9 @@ const App: React.FC = () => {
                 <aside className={`fixed md:relative top-0 left-0 h-full z-30 md:z-auto w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out`}>
                     <div className="p-4 flex flex-col h-full">
                         <header className="hidden md:flex justify-between items-center mb-6">
-                           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-400 dark:to-purple-500">ToolBox.IA</h1>
+                            <button onClick={() => handleSelectTool('home')} className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 focus:ring-blue-500 rounded-md" aria-label="Voltar ao início">
+                                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-400 dark:to-purple-500">ToolBox.IA</h1>
+                            </button>
                             <button
                                 onClick={toggleTheme}
                                 className="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -150,25 +190,33 @@ const App: React.FC = () => {
                                     </button>
                                 </li>
                                 <hr className="my-3 border-gray-200 dark:border-gray-700" />
-                                {tools.map(tool => (
-                                    <li key={tool.id}>
-                                        <button
-                                            onClick={() => handleSelectTool(tool.id)}
-                                            disabled={!tool.implemented}
-                                            className={`w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-200 flex items-center ${
-                                                activeTool === tool.id
-                                                    ? 'bg-blue-500 text-white shadow'
-                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                            } ${
-                                                !tool.implemented
-                                                    ? 'opacity-50 cursor-not-allowed'
-                                                    : ''
-                                            }`}
-                                        >
-                                            {tool.name}
-                                            {!tool.implemented && <span className="ml-auto text-xs bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full">Em breve</span>}
-                                        </button>
-                                    </li>
+                                
+                                {Object.entries(groupedToolsForSidebar).map(([category, toolsInCategory]) => (
+                                    <React.Fragment key={category}>
+                                        <li className="px-3 pt-3 pb-2 text-xs font-bold uppercase text-gray-500 dark:text-gray-400 tracking-wider">
+                                            {category}
+                                        </li>
+                                        {toolsInCategory.map(tool => (
+                                            <li key={tool.id}>
+                                                <button
+                                                    onClick={() => handleSelectTool(tool.id)}
+                                                    disabled={!tool.implemented}
+                                                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-200 flex items-center ${
+                                                        activeTool === tool.id
+                                                            ? 'bg-blue-500 text-white shadow'
+                                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                                    } ${
+                                                        !tool.implemented
+                                                            ? 'opacity-50 cursor-not-allowed'
+                                                            : ''
+                                                    }`}
+                                                >
+                                                    {tool.name}
+                                                    {!tool.implemented && <span className="ml-auto text-xs bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full">Em breve</span>}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </React.Fragment>
                                 ))}
                             </ul>
                         </nav>
@@ -180,9 +228,20 @@ const App: React.FC = () => {
                 {/* Main Content Area */}
                 <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
                      {activeTool === 'home' ? (
-                        <Home tools={tools} onSelectTool={handleSelectTool} />
+                        <Home 
+                            tools={tools} 
+                            onSelectTool={handleSelectTool} 
+                            viewMode={viewMode}
+                            onViewModeChange={setViewMode}
+                        />
                     ) : (
-                        currentTool ? currentTool.component : <Home tools={tools} onSelectTool={handleSelectTool} />
+                        CurrentToolComponent ? <CurrentToolComponent onGoBack={() => handleSelectTool('home')} /> : 
+                        <Home 
+                            tools={tools} 
+                            onSelectTool={handleSelectTool} 
+                            viewMode={viewMode}
+                            onViewModeChange={setViewMode}
+                        />
                     )}
                 </main>
             </div>

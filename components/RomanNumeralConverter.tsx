@@ -50,7 +50,11 @@ function fromRoman(romanStr: string): string {
     return result.toString();
 }
 
-const RomanNumeralConverter: React.FC = () => {
+interface RomanNumeralConverterProps {
+    onGoBack: () => void;
+}
+
+const RomanNumeralConverter: React.FC<RomanNumeralConverterProps> = ({ onGoBack }) => {
     const [arabic, setArabic] = useState<string>('1994');
     const [roman, setRoman] = useState<string>('MCMXCIV');
 
@@ -80,48 +84,60 @@ const RomanNumeralConverter: React.FC = () => {
     };
 
     return (
-        <div className="w-full max-w-3xl mx-auto bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
-            <header className="text-center">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-600 dark:from-amber-400 dark:to-yellow-500">
-                    Conversor de Números Romanos
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">Converta números arábicos para romanos e vice-versa.</p>
-            </header>
+        <>
+            <button
+                onClick={onGoBack}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4 group"
+                aria-label="Voltar para a página inicial"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                </svg>
+                <span>Voltar ao Início</span>
+            </button>
+            <div className="w-full max-w-3xl mx-auto bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <header className="text-center">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-600 dark:from-amber-400 dark:to-yellow-500">
+                        Conversor de Números Romanos
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">Converta números arábicos para romanos e vice-versa.</p>
+                </header>
 
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                <div className="w-full space-y-2">
-                    <label htmlFor="arabic-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Número Arábico
-                    </label>
-                    <input
-                        id="arabic-input"
-                        type="number"
-                        className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 placeholder-gray-500 font-mono text-lg text-center"
-                        value={arabic}
-                        onChange={handleArabicChange}
-                        placeholder="Ex: 2024"
-                    />
-                </div>
-                
-                <div className="text-2xl font-bold text-gray-500 dark:text-gray-400 self-center transform md:rotate-90">
-                    &#8644;
-                </div>
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                    <div className="w-full space-y-2">
+                        <label htmlFor="arabic-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Número Arábico
+                        </label>
+                        <input
+                            id="arabic-input"
+                            type="number"
+                            className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 placeholder-gray-500 font-mono text-lg text-center"
+                            value={arabic}
+                            onChange={handleArabicChange}
+                            placeholder="Ex: 2024"
+                        />
+                    </div>
+                    
+                    <div className="text-2xl font-bold text-gray-500 dark:text-gray-400 self-center transform md:rotate-90">
+                        &#8644;
+                    </div>
 
-                <div className="w-full space-y-2">
-                    <label htmlFor="roman-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Número Romano
-                    </label>
-                    <input
-                        id="roman-input"
-                        type="text"
-                        className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 placeholder-gray-500 font-mono text-lg text-center"
-                        value={roman}
-                        onChange={handleRomanChange}
-                        placeholder="Ex: MMXXIV"
-                    />
+                    <div className="w-full space-y-2">
+                        <label htmlFor="roman-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Número Romano
+                        </label>
+                        <input
+                            id="roman-input"
+                            type="text"
+                            className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 placeholder-gray-500 font-mono text-lg text-center"
+                            value={roman}
+                            onChange={handleRomanChange}
+                            placeholder="Ex: MMXXIV"
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

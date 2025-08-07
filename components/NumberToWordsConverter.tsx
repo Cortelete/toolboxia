@@ -72,8 +72,11 @@ function convertThreeDigits(num: number): string {
     return parts.join(' e ');
 }
 
+interface NumberToWordsConverterProps {
+    onGoBack: () => void;
+}
 
-const NumberToWordsConverter: React.FC = () => {
+const NumberToWordsConverter: React.FC<NumberToWordsConverterProps> = ({ onGoBack }) => {
     const [numberInput, setNumberInput] = useState<string>('123456');
     const [copied, setCopied] = useState<boolean>(false);
 
@@ -97,48 +100,60 @@ const NumberToWordsConverter: React.FC = () => {
     }, [numberInWords]);
 
     return (
-        <div className="w-full max-w-3xl mx-auto bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
-            <header className="text-center">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-400 dark:to-emerald-500">
-                    Número por Extenso
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-2">Converta qualquer número para sua forma escrita.</p>
-            </header>
+        <>
+            <button
+                onClick={onGoBack}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-4 group"
+                aria-label="Voltar para a página inicial"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                </svg>
+                <span>Voltar ao Início</span>
+            </button>
+            <div className="w-full max-w-3xl mx-auto bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
+                <header className="text-center">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-emerald-600 dark:from-green-400 dark:to-emerald-500">
+                        Número por Extenso
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">Converta qualquer número para sua forma escrita.</p>
+                </header>
 
-            <div className="space-y-2">
-                <label htmlFor="number-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Digite o Número
-                </label>
-                <input
-                    id="number-input"
-                    type="number"
-                    className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 placeholder-gray-500 font-mono text-lg"
-                    value={numberInput}
-                    onChange={(e) => setNumberInput(e.target.value)}
-                    placeholder="Ex: 12345"
-                />
-            </div>
-            
-            <div className="space-y-2">
-                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Resultado por Extenso (clique para copiar)
-                </label>
-                <div 
-                    onClick={handleCopy}
-                    title="Clique para copiar"
-                    className="relative group w-full bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 min-h-[100px] flex items-center justify-center text-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700/60 transition-colors"
-                >
-                    <p className="font-semibold text-lg text-emerald-700 dark:text-emerald-400">{numberInWords}</p>
-                    <div className="absolute top-2 right-2 p-1 rounded-full text-gray-500 dark:text-gray-400">
-                        {copied ? (
-                            <IconCheck className="h-5 w-5 text-green-500" />
-                        ) : (
-                            <IconCopy className="h-5 w-5 opacity-0 group-hover:opacity-50 transition-opacity" />
-                        )}
+                <div className="space-y-2">
+                    <label htmlFor="number-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Digite o Número
+                    </label>
+                    <input
+                        id="number-input"
+                        type="number"
+                        className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 placeholder-gray-500 font-mono text-lg"
+                        value={numberInput}
+                        onChange={(e) => setNumberInput(e.target.value)}
+                        placeholder="Ex: 12345"
+                    />
+                </div>
+                
+                <div className="space-y-2">
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Resultado por Extenso (clique para copiar)
+                    </label>
+                    <div 
+                        onClick={handleCopy}
+                        title="Clique para copiar"
+                        className="relative group w-full bg-gray-100 dark:bg-gray-900/40 border border-gray-300 dark:border-gray-600 rounded-lg p-4 text-gray-800 dark:text-gray-200 min-h-[100px] flex items-center justify-center text-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700/60 transition-colors"
+                    >
+                        <p className="font-semibold text-lg text-emerald-700 dark:text-emerald-400">{numberInWords}</p>
+                        <div className="absolute top-2 right-2 p-1 rounded-full text-gray-500 dark:text-gray-400">
+                            {copied ? (
+                                <IconCheck className="h-5 w-5 text-green-500" />
+                            ) : (
+                                <IconCopy className="h-5 w-5 opacity-0 group-hover:opacity-50 transition-opacity" />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
